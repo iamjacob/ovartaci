@@ -20,6 +20,8 @@ const START_YEAR = 1894;
         const ageEl =
             document.querySelector(".age");
 
+        const bwToggle = document.getElementById("bwToggle");
+
         const reveals = document.querySelectorAll(
             ".node"
         );
@@ -35,6 +37,34 @@ const START_YEAR = 1894;
 
 
 
+
+        function applyTheme(isBlackWhite) {
+            document.body.classList.toggle("bw-mode", isBlackWhite);
+            bwToggle.setAttribute("aria-pressed", String(isBlackWhite));
+            bwToggle.textContent = isBlackWhite ? "Back to dark" : "Black / White";
+
+            document.querySelectorAll("svg path").forEach((el) => {
+                const fill = el.getAttribute("fill");
+                const stroke = el.getAttribute("stroke");
+
+                if (fill === "white" || fill === "#fff") {
+                    el.style.fill = isBlackWhite ? "#000" : "";
+                } else if (fill === "black" || fill === "#000") {
+                    el.style.fill = isBlackWhite ? "" : "#000";
+                }
+
+                if (stroke === "white" || stroke === "#fff") {
+                    el.style.stroke = isBlackWhite ? "#000" : "";
+                } else if (stroke === "black" || stroke === "#000") {
+                    el.style.stroke = isBlackWhite ? "" : "#000";
+                }
+            });
+        }
+
+        bwToggle.addEventListener("click", () => {
+            const nextState = !document.body.classList.contains("bw-mode");
+            applyTheme(nextState);
+        });
 
         function updateScene() {
             const maxScroll = document.documentElement.scrollWidth - window.innerWidth;
@@ -95,4 +125,5 @@ const START_YEAR = 1894;
             updateScene
         );
 
+        applyTheme(false);
         updateScene();
