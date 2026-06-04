@@ -134,54 +134,56 @@ updateScene();
 const pauseScreen = document.querySelector('.pause-screen');
 const scrollContainer = document.querySelector('.world');
 
-let idleTimer;
+let idleTimer = null;
 
 function showPauseScreen() {
+    if (!pauseScreen) return;
 
+    pauseScreen.classList.remove('is-hidden');
     document.body.classList.add('pause-active');
 
     if (scrollContainer) {
         scrollContainer.scrollTo({
             left: 0,
-            behavior: 'smooth'
+            behavior: 'auto'
         });
     }
-
-    pauseScreen.classList.remove('is-hidden');
 }
 
 function hidePauseScreen() {
+    if (!pauseScreen) return;
 
     pauseScreen.classList.add('is-hidden');
-
     document.body.classList.remove('pause-active');
-
     resetIdleTimer();
 }
 
 function resetIdleTimer() {
-    clearTimeout(idleTimer);
+    if (idleTimer) {
+        clearTimeout(idleTimer);
+    }
 
-    idleTimer = setTimeout(() => {
+    idleTimer = window.setTimeout(() => {
         showPauseScreen();
     }, 14000);
 }
 
-pauseScreen.addEventListener('pointerdown', hidePauseScreen);
+if (pauseScreen) {
+    pauseScreen.addEventListener('pointerdown', hidePauseScreen);
+}
 
 [
     'pointerdown',
     'pointermove',
     'touchstart',
+    'touchmove',
     'wheel',
     'keydown',
-    'scroll'
+    'click'
 ].forEach(eventName => {
-    document.addEventListener(
-        eventName,
-        resetIdleTimer,
-        { passive: true }
-    );
+    document.addEventListener(eventName, resetIdleTimer, { passive: true });
 });
+
+window.addEventListener('scroll', resetIdleTimer, { passive: true });
 
 resetIdleTimer();
