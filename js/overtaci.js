@@ -132,7 +132,6 @@ applyTheme(false);
 updateScene();
 
 const pauseScreen = document.querySelector('.pause-screen');
-const scrollContainer = document.querySelector('.world');
 
 let idleTimer = null;
 
@@ -142,12 +141,10 @@ function showPauseScreen() {
     pauseScreen.classList.remove('is-hidden');
     document.body.classList.add('pause-active');
 
-    if (scrollContainer) {
-        scrollContainer.scrollTo({
-            left: 0,
-            behavior: 'auto'
-        });
-    }
+    window.scrollTo({
+        left: 0,
+        behavior: 'auto'
+    });
 }
 
 function hidePauseScreen() {
