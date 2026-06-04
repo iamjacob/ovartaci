@@ -134,6 +134,44 @@ updateScene();
 const pauseScreen = document.querySelector('.pause-screen');
 
 let idleTimer = null;
+let momentumFrame = null;
+let momentumVelocity = 0;
+let lastTouchX = 0;
+let lastTouchTime = 0;
+let touchVelocityX = 0;
+
+function stopMomentum() {
+    if (momentumFrame) {
+        cancelAnimationFrame(momentumFrame);
+        momentumFrame = null;
+    }
+    momentumVelocity = 0;
+}
+
+function startMomentum(velocity) {
+    stopMomentum();
+
+    const safeVelocity = Math.max(-1800, Math.min(1800, velocity));
+    if (Math.abs(safeVelocity) < 0.5) return;
+
+    momentumVelocity = safeVelocity;
+
+    const step = () => {
+        const maxScroll = Math.max(0, document.documentElement.scrollWidth - window.innerWidth);
+        const nextLeft = Math.min(Math.max(window.scrollX + momentumVelocity * 0.28, 0), maxScroll);
+
+        window.scrollTo({ left: nextLeft, behavior: 'auto' });
+        momentumVelocity *= 0.92;
+
+        if (Math.abs(momentumVelocity) > 0.35) {
+            momentumFrame = requestAnimationFrame(step);
+        } else {
+            stopMomentum();
+        }
+    };
+
+    momentumFrame = requestAnimationFrame(step);
+}
 
 function showPauseScreen() {
     if (!pauseScreen) return;
@@ -168,6 +206,42 @@ function resetIdleTimer() {
 if (pauseScreen) {
     pauseScreen.addEventListener('pointerdown', hidePauseScreen);
 }
+
+window.addEventListener('wheel', (event) => {
+    const deltaX = event.deltaX || event.deltaY * 0.8;
+
+    if (Math.abs(deltaX) > 1) {
+        event.preventDefault();
+        startMomentum(deltaX * 6);
+    }
+}, { passive: false });
+
+window.addEventListener('touchstart', (event) => {
+    const touch = event.touches[0];
+    lastTouchX = touch.clientX;
+    lastTouchTime = performance.now();
+    touchVelocityX = 0;
+    stopMomentum();
+}, { passive: true });
+
+window.addEventListener('touchmove', (event) => {
+    const touch = event.touches[0];
+    const now = performance.now();
+    const deltaX = touch.clientX - lastTouchX;
+    const deltaTime = Math.max(16, now - lastTouchTime);
+
+    touchVelocityX = (deltaX / deltaTime) * 420;
+    event.preventDefault();
+
+    lastTouchX = touch.clientX;
+    lastTouchTime = now;
+}, { passive: false });
+
+window.addEventListener('touchend', () => {
+    if (Math.abs(touchVelocityX) > 1) {
+        startMomentum(touchVelocityX);
+    }
+}, { passive: true });
 
 [
     'pointerdown',
