@@ -1,129 +1,187 @@
 'use strict';
 
 const START_YEAR = 1894;
-        const END_YEAR = 1985;
+const END_YEAR = 1985;
 
-        const START_AGE = 0;
-        const END_AGE = 91;
+const START_AGE = 0;
+const END_AGE = 91;
 
-        const path =
-            document.getElementById("linePath");
+const path =
+    document.getElementById("linePath");
 
-        const timelinePath = document.getElementById("timelinePath");
+const timelinePath = document.getElementById("timelinePath");
 
-        const dot =
-            document.querySelector(".dot");
+const dot =
+    document.querySelector(".dot");
 
-        const yearEl =
-            document.querySelector(".year");
+const yearEl =
+    document.querySelector(".year");
 
-        const ageEl =
-            document.querySelector(".age");
+const ageEl =
+    document.querySelector(".age");
 
-        const bwToggle = document.getElementById("bwToggle");
+const bwToggle = document.getElementById("bwToggle");
 
-        const reveals = document.querySelectorAll(
-            ".node"
-        );
+const reveals = document.querySelectorAll(
+    ".node"
+);
 
-        const pathLength = path.getTotalLength();
-        const timelinePathLength = timelinePath.getTotalLength();
+const pathLength = path.getTotalLength();
+const timelinePathLength = timelinePath.getTotalLength();
 
-        path.style.strokeDasharray = pathLength;
-        path.style.strokeDashoffset = pathLength;
+path.style.strokeDasharray = pathLength;
+path.style.strokeDashoffset = pathLength;
 
-        timelinePath.style.strokeDasharray = timelinePathLength;
-        timelinePath.style.strokeDashoffset = timelinePathLength;
-
-
+timelinePath.style.strokeDasharray = timelinePathLength;
+timelinePath.style.strokeDashoffset = timelinePathLength;
 
 
-        function applyTheme(isBlackWhite) {
-            document.body.classList.toggle("bw-mode", isBlackWhite);
-            bwToggle.setAttribute("aria-pressed", String(isBlackWhite));
-            bwToggle.textContent = isBlackWhite ? "Back to dark" : "Black / White";
 
-            document.querySelectorAll("svg path").forEach((el) => {
-                const fill = el.getAttribute("fill");
-                const stroke = el.getAttribute("stroke");
 
-                if (fill === "white" || fill === "#fff") {
-                    el.style.fill = isBlackWhite ? "#000" : "";
-                } else if (fill === "black" || fill === "#000") {
-                    el.style.fill = isBlackWhite ? "" : "#000";
-                }
+function applyTheme(isBlackWhite) {
+    document.body.classList.toggle("bw-mode", isBlackWhite);
+    bwToggle.setAttribute("aria-pressed", String(isBlackWhite));
+    bwToggle.textContent = isBlackWhite ? "Back to dark" : "Black / White";
 
-                if (stroke === "white" || stroke === "#fff") {
-                    el.style.stroke = isBlackWhite ? "#000" : "";
-                } else if (stroke === "black" || stroke === "#000") {
-                    el.style.stroke = isBlackWhite ? "" : "#000";
-                }
-            });
+    document.querySelectorAll("svg path").forEach((el) => {
+        const fill = el.getAttribute("fill");
+        const stroke = el.getAttribute("stroke");
+
+        if (fill === "white" || fill === "#fff") {
+            el.style.fill = isBlackWhite ? "#000" : "";
+        } else if (fill === "black" || fill === "#000") {
+            el.style.fill = isBlackWhite ? "" : "#000";
         }
 
-        bwToggle.addEventListener("click", () => {
-            const nextState = !document.body.classList.contains("bw-mode");
-            applyTheme(nextState);
+        if (stroke === "white" || stroke === "#fff") {
+            el.style.stroke = isBlackWhite ? "#000" : "";
+        } else if (stroke === "black" || stroke === "#000") {
+            el.style.stroke = isBlackWhite ? "" : "#000";
+        }
+    });
+}
+
+bwToggle.addEventListener("click", () => {
+    const nextState = !document.body.classList.contains("bw-mode");
+    applyTheme(nextState);
+});
+
+applyTheme(true);
+
+
+function updateScene() {
+    const maxScroll = document.documentElement.scrollWidth - window.innerWidth;
+    const progress = Math.min(Math.max(window.scrollX / maxScroll, 0), 1);
+
+
+
+    path.style.strokeDashoffset = pathLength * (1 - progress);
+    const point = path.getPointAtLength(pathLength * progress);
+
+    timelinePath.style.strokeDashoffset = timelinePathLength * (1 - progress);
+    const timelinePoint = timelinePath.getPointAtLength(timelinePathLength * progress);
+
+
+    // dot.style.left = `${point.x}px`;
+    // dot.style.top = `${point.y}px`;
+
+    yearEl.textContent = Math.round(START_YEAR + (END_YEAR - START_YEAR) * progress);
+    ageEl.textContent = `År ${Math.round(START_AGE + (END_AGE - START_AGE) * progress)}`;
+
+    reveals.forEach((el) => {
+        const start = Number(el.dataset.start);
+        const hideAt = start - 0.0; // 3% scroll buffer
+
+        if (progress >= start) {
+            el.classList.add("revealed");
+        } else if (progress < hideAt) {
+            el.classList.remove("revealed");
+        }
+        // if (
+        //     progress >= start &&
+        //     !el.classList.contains("revealed")
+        // ) {
+        //     el.classList.add("revealed");
+        // }
+    });
+
+    // FINAL GLOW
+    if (progress > 0.92) {
+
+        dot.style.transform =
+            "translate(-50%, -50%) scale(1.8)";
+
+    } else {
+
+        dot.style.transform =
+            "translate(-50%, -50%) scale(1)";
+    }
+}
+
+window.addEventListener(
+    "scroll",
+    updateScene
+);
+
+window.addEventListener(
+    "resize",
+    updateScene
+);
+
+applyTheme(false);
+updateScene();
+
+const pauseScreen = document.querySelector('.pause-screen');
+const scrollContainer = document.querySelector('.world');
+
+let idleTimer;
+
+function showPauseScreen() {
+
+    document.body.classList.add('pause-active');
+
+    if (scrollContainer) {
+        scrollContainer.scrollTo({
+            left: 0,
+            behavior: 'smooth'
         });
+    }
 
-        function updateScene() {
-            const maxScroll = document.documentElement.scrollWidth - window.innerWidth;
-            const progress = Math.min(Math.max(window.scrollX / maxScroll, 0), 1);
+    pauseScreen.classList.remove('is-hidden');
+}
 
-            
+function hidePauseScreen() {
 
-            path.style.strokeDashoffset = pathLength * (1 - progress);
-            const point = path.getPointAtLength(pathLength * progress);
+    pauseScreen.classList.add('is-hidden');
 
-            timelinePath.style.strokeDashoffset = timelinePathLength * (1 - progress);
-            const timelinePoint = timelinePath.getPointAtLength(timelinePathLength * progress);
+    document.body.classList.remove('pause-active');
 
+    resetIdleTimer();
+}
 
-            // dot.style.left = `${point.x}px`;
-            // dot.style.top = `${point.y}px`;
+function resetIdleTimer() {
+    clearTimeout(idleTimer);
 
-            yearEl.textContent = Math.round(START_YEAR + (END_YEAR - START_YEAR) * progress);
-            ageEl.textContent = `År ${Math.round(START_AGE + (END_AGE - START_AGE) * progress)}`;
+    idleTimer = setTimeout(() => {
+        showPauseScreen();
+    }, 14000);
+}
 
-            reveals.forEach((el) => {
-                const start = Number(el.dataset.start);
-                const hideAt = start - 0.0; // 3% scroll buffer
+pauseScreen.addEventListener('pointerdown', hidePauseScreen);
 
-                if (progress >= start) {
-                    el.classList.add("revealed");
-                } else if (progress < hideAt) {
-                    el.classList.remove("revealed");
-                }
-                // if (
-                //     progress >= start &&
-                //     !el.classList.contains("revealed")
-                // ) {
-                //     el.classList.add("revealed");
-                // }
-            });
+[
+    'pointerdown',
+    'pointermove',
+    'touchstart',
+    'wheel',
+    'keydown',
+    'scroll'
+].forEach(eventName => {
+    document.addEventListener(
+        eventName,
+        resetIdleTimer,
+        { passive: true }
+    );
+});
 
-            // FINAL GLOW
-            if (progress > 0.92) {
-
-                dot.style.transform =
-                    "translate(-50%, -50%) scale(1.8)";
-
-            } else {
-
-                dot.style.transform =
-                    "translate(-50%, -50%) scale(1)";
-            }
-        }
-
-        window.addEventListener(
-            "scroll",
-            updateScene
-        );
-
-        window.addEventListener(
-            "resize",
-            updateScene
-        );
-
-        applyTheme(false);
-        updateScene();
+resetIdleTimer();

@@ -172,3 +172,67 @@ body.bw-mode {
             }
 
         }
+
+.pause-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: white;
+
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .4s ease, visibility .4s ease;
+}
+
+.pause-screen.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+body.pause-active {
+  overflow: hidden;
+}
+
+.swipe-hint {
+  position: absolute;
+  inset: auto 0 24px 0;
+  margin: auto;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: white;
+  border-radius: 999px;
+  /*background: rgba(0, 0, 0, 0.45);*/
+  pointer-events: none;
+  animation: swipeHint 1.4s ease-in-out infinite;
+}
+
+.swipe-hint svg {
+  width: 24px;
+  height: 24px;
+	stroke:#000;
+}
+
+@keyframes swipeHint {
+  0%, 100% {
+    transform: translateX(0);
+    opacity: 0.65;
+  }
+
+  45% {
+    transform: translateX(-16px);
+    opacity: 1;
+  }
+
+  75% {
+    transform: translateX(0px);
+    opacity: 1;
+  }
+}
