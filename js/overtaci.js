@@ -90,7 +90,7 @@ function updateScene() {
 
     reveals.forEach((el) => {
         const start = Number(el.dataset.start);
-        const hideAt = start - 0.0; // 3% scroll buffer
+        const hideAt = start - 0.0; // scroll buffer
 
         if (progress >= start) {
             el.classList.add("revealed");
