@@ -128,7 +128,6 @@ window.addEventListener(
     updateScene
 );
 
-applyTheme(false);
 updateScene();
 
 const pauseScreen = document.querySelector('.pause-screen');
