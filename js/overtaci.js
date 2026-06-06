@@ -38,6 +38,9 @@ timelinePath.style.strokeDashoffset = timelinePathLength;
 
 
 
+// --------------------
+// THEME TOGGLE
+// --------------------
 function applyTheme(isBlackWhite) {
     document.body.classList.toggle("bw-mode", isBlackWhite);
     bwToggle.setAttribute("aria-pressed", String(isBlackWhite));
@@ -69,6 +72,9 @@ bwToggle.addEventListener("click", () => {
 applyTheme(true);
 
 
+// --------------------
+// SCENE / TIMELINE UPDATE
+// --------------------
 function updateScene() {
     const maxScroll = document.documentElement.scrollWidth - window.innerWidth;
     const progress = Math.min(Math.max(window.scrollX / maxScroll, 0), 1);
@@ -130,6 +136,9 @@ window.addEventListener(
 
 updateScene();
 
+// --------------------
+// PAUSE SCREEN
+// --------------------
 const pauseScreen = document.querySelector('.pause-screen');
 
 let idleTimer = null;
@@ -139,6 +148,9 @@ let lastTouchX = 0;
 let lastTouchTime = 0;
 let touchVelocityX = 0;
 
+// --------------------
+// MOMENTUM / INERTIA
+// --------------------
 function stopMomentum() {
     if (momentumFrame) {
         cancelAnimationFrame(momentumFrame);
@@ -206,6 +218,9 @@ if (pauseScreen) {
     pauseScreen.addEventListener('pointerdown', hidePauseScreen);
 }
 
+// --------------------
+// INPUT LISTENERS
+// --------------------
 window.addEventListener('wheel', (event) => {
     const deltaX = event.deltaX || event.deltaY * 0.8;
 
