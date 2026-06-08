@@ -64,7 +64,8 @@ function applyTheme(isBlackWhite) {
     }
 
     document.querySelectorAll("svg").forEach((svg) => {
-        svg.style.color = themeColor;
+        const isPauseLogo = svg.closest(".pause-screen");
+        svg.style.color = isPauseLogo ? "#000" : themeColor;
 
         svg.querySelectorAll("[fill], [stroke]").forEach((el) => {
             const fill = el.getAttribute("fill");
