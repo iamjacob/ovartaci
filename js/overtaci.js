@@ -97,8 +97,6 @@ function updateScene() {
     const maxScroll = document.documentElement.scrollWidth - window.innerWidth;
     const progress = Math.min(Math.max(window.scrollX / maxScroll, 0), 1);
 
-
-
     path.style.strokeDashoffset = pathLength * (1 - progress);
     const point = path.getPointAtLength(pathLength * progress);
 

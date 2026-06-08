@@ -9,7 +9,7 @@ Projektet består af én samlet pakke indeholdende `index.html` `style.css` `ova
 - JavaScript
 - SVG-assets
 
-Løsningen er designet til kiosk- og udstillingsbrug og kræver ingen backend.
+Løsningen er designet til udstillingsbrug og kræver ingen backend.
 
 Denne README er over opbygningen af hele swipestories.
 
