@@ -124,7 +124,7 @@
          opacity: .7;
        }
 
-       .dot {
+       /* .dot {
          position: absolute;
          width: 10px;
          height: 10px;
@@ -133,7 +133,7 @@
          box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.06);
          transform: translate(-50%, -50%);
          pointer-events: none;
-       }
+       } */
 
        body.bw-mode .dot {
          box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.06);
