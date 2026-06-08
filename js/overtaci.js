@@ -89,8 +89,9 @@ function applyTheme(isBlackWhite) {
 
     document.querySelectorAll("svg").forEach((svg) => {
         const isPauseLogo = svg.closest(".pause-screen");
-        // pause-screen logo: white in normal mode, black in BW mode (opposite of main path)
-        const svgColor = isPauseLogo ? (isBlackWhite ? "#000" : "#fff") : themeColor;
+        const isSwipeHint = svg.closest(".swipe-hint");
+        // pause-screen logo & swipe-hint: white in normal mode, black in BW mode (opposite of main path)
+        const svgColor = (isPauseLogo || isSwipeHint) ? (isBlackWhite ? "#000" : "#fff") : themeColor;
         svg.style.color = svgColor;
 
         svg.querySelectorAll("[fill], [stroke]").forEach((el) => {
@@ -102,9 +103,33 @@ function applyTheme(isBlackWhite) {
             }
 
             if (stroke && stroke !== "none" && stroke !== "transparent") {
-                el.style.stroke = stroke.startsWith("url(") ? stroke : "currentColor";
+                // For swipe-hint, explicitly set stroke to ensure it's visible
+                if (isSwipeHint) {
+                    el.style.stroke = svgColor;
+                } else {
+                    el.style.stroke = stroke.startsWith("url(") ? stroke : "currentColor";
+                }
             }
         });
+
+        // Some SVGs (like the swipe-hint) use paths without an explicit `stroke` attribute.
+        // Ensure those path-like elements get a visible stroke in the themed color.
+        if (isSwipeHint || isPauseLogo) {
+            svg.querySelectorAll('path, circle, rect, line, polyline, polygon').forEach((shape) => {
+                const hasStrokeAttr = shape.hasAttribute('stroke');
+                const hasFillAttr = shape.hasAttribute('fill');
+
+                // If no stroke attribute, force a stroke so outlines become visible.
+                if (!hasStrokeAttr || shape.getAttribute('stroke') === 'none') {
+                    shape.style.stroke = svgColor;
+                }
+
+                // If there is a fill and it's not none, make it inherit currentColor
+                if (hasFillAttr && shape.getAttribute('fill') !== 'none' && shape.getAttribute('fill') !== 'transparent') {
+                    shape.style.fill = 'currentColor';
+                }
+            });
+        }
     });
 }
 
@@ -166,10 +191,10 @@ function updateScene() {
             "translate(-50%, -50%) scale(1)";
     }
 
-        if (progress > 0.99999) {
-        console.log("Historien slut, tæller en op");
-        localStorage.setItem("ovartaci-has-seen-end", localStorage.getItem("ovartaci-has-seen-end") ? parseInt(localStorage.getItem("ovartaci-has-seen-end")) + 1 : 1);
-    }
+    //     if (progress > 0.99999) {
+    //     console.log("Historien slut, tæller en op");
+    //     localStorage.setItem("ovartaci-has-seen-end", localStorage.getItem("ovartaci-has-seen-end") ? parseInt(localStorage.getItem("ovartaci-has-seen-end")) + 1 : 1);
+    // }
 }
 
 window.addEventListener(
@@ -242,6 +267,10 @@ function showPauseScreen() {
         left: 0,
         behavior: 'auto'
     });
+
+    //Fandt frem til at dette her er et meget bedre sted at sætte tælleren.
+    localStorage.setItem("ovartaci-has-seen-end", localStorage.getItem("ovartaci-has-seen-end") ? parseInt(localStorage.getItem("ovartaci-has-seen-end")) + 1 : 1);
+
 }
 
 function hidePauseScreen() {
