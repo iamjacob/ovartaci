@@ -21,7 +21,7 @@ const ageEl =
     document.querySelector(".age");
 
 const bwToggle = document.getElementById("bwToggle");
-const THEME_STORAGE_KEY = "ovartaci-theme-bw";
+const THEME_STORAGE_KEY = "ovartaci-theme-isBlackOnWhite";
 
 const reveals = document.querySelectorAll(
     ".node"
@@ -55,7 +55,15 @@ function applyTheme(isBlackWhite) {
 
     document.body.classList.toggle("bw-mode", isBlackWhite);
     bwToggle.setAttribute("aria-pressed", String(isBlackWhite));
-    bwToggle.textContent = isBlackWhite ? "Back to dark" : "Black / White";
+    //bwToggle.textContent = isBlackWhite ? "Back to dark" : "Black / White";
+
+    if (isBlackWhite) {
+        // document.body.classList.add("bw-mode");
+        console.log("BW MODE");
+    } else {
+        console.log("WB MODE");
+        // document.body.classList.remove("bw-mode");
+    }
 
     try {
         localStorage.setItem(THEME_STORAGE_KEY, String(isBlackWhite));
@@ -137,6 +145,11 @@ function updateScene() {
 
         dot.style.transform =
             "translate(-50%, -50%) scale(1)";
+    }
+
+    if (progress > 0.92) {
+        console.log("END REACHED - INCREMENTING COUNTER");
+        localStorage.setItem("ovartaci-has-seen-end", localStorage.getItem("ovartaci-has-seen-end") ? parseInt(localStorage.getItem("ovartaci-has-seen-end")) + 1 : 1);
     }
 }
 
