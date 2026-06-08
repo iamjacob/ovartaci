@@ -20,7 +20,14 @@ const yearEl =
 const ageEl =
     document.querySelector(".age");
 
-const bwToggle = document.getElementById("bwToggle");
+const bwToggle = document.getElementById("bwToggle") || document.getElementById("btn");
+const scene = document.getElementById('scene');
+const inner = document.getElementById('inner');
+let rotation = 60;
+function rotateInner() {
+    rotation += 180;
+    if (inner) inner.style.transform = `rotate(${rotation}deg)`;
+}
 const THEME_STORAGE_KEY = "ovartaci-theme-isBlackOnWhite";
 
 const reveals = document.querySelectorAll(
@@ -28,13 +35,13 @@ const reveals = document.querySelectorAll(
 );
 
 const pathLength = path.getTotalLength();
-const timelinePathLength = timelinePath.getTotalLength();
+// const timelinePathLength = timelinePath.getTotalLength();
 
 path.style.strokeDasharray = pathLength;
 path.style.strokeDashoffset = pathLength;
 
-timelinePath.style.strokeDasharray = timelinePathLength;
-timelinePath.style.strokeDashoffset = timelinePathLength;
+// timelinePath.style.strokeDasharray = timelinePathLength;
+// timelinePath.style.strokeDashoffset = timelinePathLength;
 
 
 
@@ -57,6 +64,15 @@ function applyTheme(isBlackWhite) {
     bwToggle.setAttribute("aria-pressed", String(isBlackWhite));
     //bwToggle.textContent = isBlackWhite ? "Back to dark" : "Black / White";
 
+    // sync scene theme for the circular toggle visual
+    if (scene) scene.dataset.theme = isBlackWhite ? 'light' : 'dark';
+    // ensure the inner rotation matches stored state
+    if (inner) inner.style.transform = isBlackWhite ? `rotate(${rotation + 180}deg)` : `rotate(60deg)`;
+
+    // set main path and overall SVG color
+    const mainPath = document.querySelector(".mainPath");
+    if (mainPath) mainPath.style.color = themeColor;
+
     if (isBlackWhite) {
         // document.body.classList.add("bw-mode");
         console.log("BW MODE");
@@ -73,7 +89,9 @@ function applyTheme(isBlackWhite) {
 
     document.querySelectorAll("svg").forEach((svg) => {
         const isPauseLogo = svg.closest(".pause-screen");
-        svg.style.color = isPauseLogo ? "#000" : themeColor;
+        // pause-screen logo: white in normal mode, black in BW mode (opposite of main path)
+        const svgColor = isPauseLogo ? (isBlackWhite ? "#000" : "#fff") : themeColor;
+        svg.style.color = svgColor;
 
         svg.querySelectorAll("[fill], [stroke]").forEach((el) => {
             const fill = el.getAttribute("fill");
@@ -92,6 +110,7 @@ function applyTheme(isBlackWhite) {
 
 bwToggle.addEventListener("click", () => {
     const nextState = !document.body.classList.contains("bw-mode");
+    rotateInner();
     applyTheme(nextState);
 });
 
@@ -108,8 +127,8 @@ function updateScene() {
     path.style.strokeDashoffset = pathLength * (1 - progress);
     const point = path.getPointAtLength(pathLength * progress);
 
-    timelinePath.style.strokeDashoffset = timelinePathLength * (1 - progress);
-    const timelinePoint = timelinePath.getPointAtLength(timelinePathLength * progress);
+    //timelinePath.style.strokeDashoffset = timelinePathLength * (1 - progress);
+    //const timelinePoint = timelinePath.getPointAtLength(timelinePathLength * progress);
 
 
     // dot.style.left = `${point.x}px`;
@@ -147,8 +166,8 @@ function updateScene() {
             "translate(-50%, -50%) scale(1)";
     }
 
-    if (progress > 0.92) {
-        console.log("END REACHED - INCREMENTING COUNTER");
+        if (progress > 0.99999) {
+        console.log("Historien slut, tæller en op");
         localStorage.setItem("ovartaci-has-seen-end", localStorage.getItem("ovartaci-has-seen-end") ? parseInt(localStorage.getItem("ovartaci-has-seen-end")) + 1 : 1);
     }
 }
