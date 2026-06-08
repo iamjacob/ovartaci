@@ -42,25 +42,27 @@ timelinePath.style.strokeDashoffset = timelinePathLength;
 // THEME TOGGLE
 // --------------------
 function applyTheme(isBlackWhite) {
+    const themeColor = isBlackWhite ? "#000" : "#fff";
+
     document.body.classList.toggle("bw-mode", isBlackWhite);
     bwToggle.setAttribute("aria-pressed", String(isBlackWhite));
     bwToggle.textContent = isBlackWhite ? "Back to dark" : "Black / White";
 
-    document.querySelectorAll("svg path").forEach((el) => {
-        const fill = el.getAttribute("fill");
-        const stroke = el.getAttribute("stroke");
+    document.querySelectorAll("svg").forEach((svg) => {
+        svg.style.color = themeColor;
 
-        if (fill === "white" || fill === "#fff") {
-            el.style.fill = isBlackWhite ? "#000" : "";
-        } else if (fill === "black" || fill === "#000") {
-            el.style.fill = isBlackWhite ? "" : "#000";
-        }
+        svg.querySelectorAll("[fill], [stroke]").forEach((el) => {
+            const fill = el.getAttribute("fill");
+            const stroke = el.getAttribute("stroke");
 
-        if (stroke === "white" || stroke === "#fff") {
-            el.style.stroke = isBlackWhite ? "#000" : "";
-        } else if (stroke === "black" || stroke === "#000") {
-            el.style.stroke = isBlackWhite ? "" : "#000";
-        }
+            if (fill && fill !== "none" && fill !== "transparent") {
+                el.style.fill = fill.startsWith("url(") ? fill : "currentColor";
+            }
+
+            if (stroke && stroke !== "none" && stroke !== "transparent") {
+                el.style.stroke = stroke.startsWith("url(") ? stroke : "currentColor";
+            }
+        });
     });
 }
 
