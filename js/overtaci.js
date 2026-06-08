@@ -21,6 +21,7 @@ const ageEl =
     document.querySelector(".age");
 
 const bwToggle = document.getElementById("bwToggle");
+const THEME_STORAGE_KEY = "ovartaci-theme-bw";
 
 const reveals = document.querySelectorAll(
     ".node"
@@ -41,12 +42,26 @@ timelinePath.style.strokeDashoffset = timelinePathLength;
 // --------------------
 // THEME TOGGLE
 // --------------------
+function getStoredTheme() {
+    try {
+        return localStorage.getItem(THEME_STORAGE_KEY) === "true";
+    } catch (error) {
+        return false;
+    }
+}
+
 function applyTheme(isBlackWhite) {
     const themeColor = isBlackWhite ? "#000" : "#fff";
 
     document.body.classList.toggle("bw-mode", isBlackWhite);
     bwToggle.setAttribute("aria-pressed", String(isBlackWhite));
     bwToggle.textContent = isBlackWhite ? "Back to dark" : "Black / White";
+
+    try {
+        localStorage.setItem(THEME_STORAGE_KEY, String(isBlackWhite));
+    } catch (error) {
+        // Ignore storage errors and keep the UI working.
+    }
 
     document.querySelectorAll("svg").forEach((svg) => {
         svg.style.color = themeColor;
@@ -71,7 +86,7 @@ bwToggle.addEventListener("click", () => {
     applyTheme(nextState);
 });
 
-applyTheme(true);
+applyTheme(getStoredTheme());
 
 
 // --------------------
