@@ -21,6 +21,7 @@ const ageEl =
     document.querySelector(".age");
 
 const bwToggle = document.getElementById("bwToggle");
+const THEME_STORAGE_KEY = "ovartaci-theme-bw";
 
 const reveals = document.querySelectorAll(
     ".node"
@@ -38,26 +39,46 @@ timelinePath.style.strokeDashoffset = timelinePathLength;
 
 
 
+// --------------------
+// THEME TOGGLE
+// --------------------
+function getStoredTheme() {
+    try {
+        return localStorage.getItem(THEME_STORAGE_KEY) === "true";
+    } catch (error) {
+        return false;
+    }
+}
+
 function applyTheme(isBlackWhite) {
+    const themeColor = isBlackWhite ? "#000" : "#fff";
+
     document.body.classList.toggle("bw-mode", isBlackWhite);
     bwToggle.setAttribute("aria-pressed", String(isBlackWhite));
     bwToggle.textContent = isBlackWhite ? "Back to dark" : "Black / White";
 
-    document.querySelectorAll("svg path").forEach((el) => {
-        const fill = el.getAttribute("fill");
-        const stroke = el.getAttribute("stroke");
+    try {
+        localStorage.setItem(THEME_STORAGE_KEY, String(isBlackWhite));
+    } catch (error) {
+        // Ignore storage errors and keep the UI working.
+    }
 
-        if (fill === "white" || fill === "#fff") {
-            el.style.fill = isBlackWhite ? "#000" : "";
-        } else if (fill === "black" || fill === "#000") {
-            el.style.fill = isBlackWhite ? "" : "#000";
-        }
+    document.querySelectorAll("svg").forEach((svg) => {
+        const isPauseLogo = svg.closest(".pause-screen");
+        svg.style.color = isPauseLogo ? "#000" : themeColor;
 
-        if (stroke === "white" || stroke === "#fff") {
-            el.style.stroke = isBlackWhite ? "#000" : "";
-        } else if (stroke === "black" || stroke === "#000") {
-            el.style.stroke = isBlackWhite ? "" : "#000";
-        }
+        svg.querySelectorAll("[fill], [stroke]").forEach((el) => {
+            const fill = el.getAttribute("fill");
+            const stroke = el.getAttribute("stroke");
+
+            if (fill && fill !== "none" && fill !== "transparent") {
+                el.style.fill = fill.startsWith("url(") ? fill : "currentColor";
+            }
+
+            if (stroke && stroke !== "none" && stroke !== "transparent") {
+                el.style.stroke = stroke.startsWith("url(") ? stroke : "currentColor";
+            }
+        });
     });
 }
 
@@ -66,9 +87,12 @@ bwToggle.addEventListener("click", () => {
     applyTheme(nextState);
 });
 
-applyTheme(true);
+applyTheme(getStoredTheme());
 
 
+// --------------------
+// SCENE / TIMELINE UPDATE
+// --------------------
 function updateScene() {
     const maxScroll = document.documentElement.scrollWidth - window.innerWidth;
     const progress = Math.min(Math.max(window.scrollX / maxScroll, 0), 1);
@@ -130,6 +154,9 @@ window.addEventListener(
 
 updateScene();
 
+// --------------------
+// PAUSE SCREEN
+// --------------------
 const pauseScreen = document.querySelector('.pause-screen');
 
 let idleTimer = null;
@@ -139,6 +166,9 @@ let lastTouchX = 0;
 let lastTouchTime = 0;
 let touchVelocityX = 0;
 
+// --------------------
+// MOMENTUM / INERTIA
+// --------------------
 function stopMomentum() {
     if (momentumFrame) {
         cancelAnimationFrame(momentumFrame);
@@ -206,6 +236,9 @@ if (pauseScreen) {
     pauseScreen.addEventListener('pointerdown', hidePauseScreen);
 }
 
+// --------------------
+// INPUT LISTENERS
+// --------------------
 window.addEventListener('wheel', (event) => {
     const deltaX = event.deltaX || event.deltaY * 0.8;
 
