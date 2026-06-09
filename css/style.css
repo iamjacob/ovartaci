@@ -184,7 +184,7 @@
          justify-content: center;
          align-items: center;
 
-         background: white;
+         background: var(--bg-color);
 
          opacity: 1;
          visibility: visible;
